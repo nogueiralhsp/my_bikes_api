@@ -9,9 +9,7 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    const user = createUserDto
-    console.log(user.email);
-    
+    const user = createUserDto    
     return this.usersService.create(createUserDto);
   }
 
