@@ -4,8 +4,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    const user = createUserDto;    
+  async create(createUserDto: CreateUserDto) {
+    const user = createUserDto;  
+
+    
+    console.log(process.env.TEST_VAR);
+    
+      
     return user;
   }
 
