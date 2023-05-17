@@ -12,11 +12,9 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const createdUSer = new this.userModel(createUserDto);
-      console.log('created successfully');
       createdUSer.save()
       return createdUSer;
     } catch (e) {
-      console.log(e);
       return e
     }
 
