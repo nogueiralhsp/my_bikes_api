@@ -7,7 +7,26 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+
   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  // ***********************************************************
+  private readonly userTest = [
+    {
+      userId: 1,
+      name: 'john',
+      username: 'john',
+      password: 'changeme',
+      email:'john@email.com'
+    },
+    {
+      userId: 2,
+      name:'maria',
+      username: 'maria',
+      password: 'guess',
+      email:'maria@gmail.com'
+    },
+  ];
+  // ***********************************************************
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
@@ -24,10 +43,13 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  // findOne(id: number) {
+  //   return `This action returns a #${id} user`;
+  // }
+  async findOne(username: string): Promise<User | undefined> {
+    return this.userTest.find(user => user.username === username)
   }
-
+  
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
