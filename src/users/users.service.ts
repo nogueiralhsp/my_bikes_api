@@ -24,7 +24,6 @@ export class UsersService {
         createdUser.password = await bcrypt.hash(createdUser.password, +process.env.SALTED);
         createdUser.save();
 
-
         createdUser.password = undefined
         return createdUser
       }else{
