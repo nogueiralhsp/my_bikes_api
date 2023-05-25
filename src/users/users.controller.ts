@@ -19,6 +19,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  //to be solved when callback is time - LP200
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.usersService.findOne(+id);
