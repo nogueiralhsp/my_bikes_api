@@ -1,5 +1,5 @@
 import { Model } from 'mongoose'
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,7 +22,9 @@ export class UsersService {
         const createdUser = new this.userModel(createUserDto);
 
         createdUser.password = await bcrypt.hash(createdUser.password, +process.env.SALTED);
-        createdUser.save();
+        await createdUser.save();
+        console.log(createdUser);
+        
 
         createdUser.password = undefined
         return createdUser
@@ -40,11 +42,13 @@ export class UsersService {
     try {
       //checking if username already exist
       if (await this.userModel.findOne({ username })) {  
-        return new UnauthorizedException('User already Exists')
+        throw new HttpException('Not Acceptable, user already exists', HttpStatus.NOT_ACCEPTABLE) 
+        // return new UnauthorizedException('User already Exists')
       }
       //checking if email already in use
       if (await this.userModel.findOne({ email })) {
-        return new UnauthorizedException('One account already exists with this email')
+        throw new HttpException('Not Acceptable, email already registered', HttpStatus.NOT_ACCEPTABLE) 
+        //  new UnauthorizedException('One account already exists with this email')
       }
       return false
 
