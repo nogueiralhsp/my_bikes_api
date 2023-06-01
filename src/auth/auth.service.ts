@@ -14,9 +14,15 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async updateToken(user: User, _id): Promise<any>{
-        // console.log('User => '+_id);
-        await this.userModel.findByIdAndUpdate(_id, {token:[user.token]})
+    async updateToken(id, token): Promise<any> {
+        let newTokenArray = []
+        newTokenArray = await (await this.userModel.findById(id)).token
+        newTokenArray.push(token)
+        this.userModel.findOneAndUpdate(id,newTokenArray)
+
+        console.log(newTokenArray);
+        
+
     }
 
     async logIn(username: string, pass: string): Promise<User | any> {
@@ -26,15 +32,17 @@ export class AuthService {
         if (!await bcrypt.compare(pass, user.password)) {
             throw new UnauthorizedException()
         }
-
+        //clearing password for security
         user.password = undefined
 
+        //generating token
         const payload = { sub: user._id, username: user.username };
         const newToken = await this.jwtService.signAsync(payload)
 
-        user.token = [newToken]
-        this.updateToken(user,user.id)
-        
+
+        user.token.push(newToken)
+        this.updateToken(user.id, newToken)
+
         return user;
     }
 }
