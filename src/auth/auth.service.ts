@@ -1,5 +1,5 @@
-import { Model } from 'mongoose';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Model, ObjectId } from 'mongoose';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
@@ -13,17 +13,6 @@ export class AuthService {
         private userservice: UsersService,
         private jwtService: JwtService
     ) { }
-
-    async updateToken(id, token): Promise<any> {
-        let newTokenArray = []
-        newTokenArray = await (await this.userModel.findById(id)).token
-        newTokenArray.push(token)
-        this.userModel.findOneAndUpdate(id,newTokenArray)
-
-        console.log(newTokenArray);
-        
-
-    }
 
     async logIn(username: string, pass: string): Promise<User | any> {
 
@@ -39,10 +28,55 @@ export class AuthService {
         const payload = { sub: user._id, username: user.username };
         const newToken = await this.jwtService.signAsync(payload)
 
-
+        //pushing new token into the array
         user.token.push(newToken)
-        this.updateToken(user.id, newToken)
 
-        return user;
+        await this.userModel.findByIdAndUpdate(user.id, { token: user.token }, { new: true })
+
+        return { token: newToken };
+    }
+
+
+    async logOut(data): Promise<any> {
+        // Expected data format
+        // data = {
+        //     _id: 'string',
+        //     token: 'string'
+        // }
+
+        if ((await this.userModel.updateOne({ _id: data._id }, { $pull: { token: data.token } }, { new: true })).modifiedCount === 1) {
+
+            return {
+                status: HttpStatus.OK,
+                message: 'logged out successfully'
+            }
+        } else {
+
+            return {
+                status: HttpStatus.UNAUTHORIZED,
+                message: 'loggin out opperation error, unauthenticated'
+            }
+        }
+
+        // console.log(user);
+
+    }
+
+    async logOutAll(data: object): Promise<any> {
+
+        if ((await this.userModel.findByIdAndUpdate(data, { token: [] }, { new: true })).token.length == 0) {
+
+            return {
+                status: HttpStatus.OK,
+                message: 'logged out from all connected devices successfully'
+            }
+        } else {
+
+            return {
+                status: HttpStatus.UNAUTHORIZED,
+                message: 'loggin out opperation error, unauthenticated'
+            }
+        }
+
     }
 }
