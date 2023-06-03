@@ -15,12 +15,17 @@ export class AuthService {
     ) { }
 
     async logIn(username: string, pass: string): Promise<User | any> {
+               
+        if (!username|| !pass) {
+            throw new UnauthorizedException('username and password must be entered')
+        }
 
         const user = (await this.userModel.findOne({ username }))
-
+        
         if (!await bcrypt.compare(pass, user.password)) {
             throw new UnauthorizedException()
         }
+        
         //clearing password for security
         user.password = undefined
 
@@ -33,7 +38,9 @@ export class AuthService {
 
         await this.userModel.findByIdAndUpdate(user.id, { token: user.token }, { new: true })
 
-        return { token: newToken };
+        return { 
+            _id: user._id,
+            token: newToken };
     }
 
 
@@ -57,8 +64,6 @@ export class AuthService {
                 message: 'loggin out opperation error, unauthenticated'
             }
         }
-
-        // console.log(user);
 
     }
 
